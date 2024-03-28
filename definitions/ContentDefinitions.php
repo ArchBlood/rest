@@ -21,17 +21,39 @@ use Yii;
 class ContentDefinitions
 {
 
-    public static function getContent($content)
+    public static function getContent($content, $options = [])
     {
-        return [
-            'id' => $content->id,
-            'metadata' => static::getContentMetadata($content),
-            'comments' => CommentDefinitions::getCommentsSummary($content),
-            'likes' => LikeDefinitions::getLikesSummary($content),
-            'topics' => static::getTopics($content),
-            'files' => FileDefinitions::getFiles($content),
+        $defaults = [
+            'includeComments' => true,
+            'includeLikes' => true,
+            'includeTopics' => true,
+            'includeFiles' => true,
         ];
 
+        $options = array_merge($defaults, $options);
+
+        $contentData = [
+            'id' => $content->id,
+            'metadata' => static::getContentMetadata($content),
+        ];
+
+        if ($options['includeComments']) {
+            $contentData['comments'] = CommentDefinitions::getCommentsSummary($content);
+        }
+
+        if ($options['includeLikes']) {
+            $contentData['likes'] = LikeDefinitions::getLikesSummary($content);
+        }
+
+        if ($options['includeTopics']) {
+            $contentData['topics'] = static::getTopics($content);
+        }
+
+        if ($options['includeFiles']) {
+            $contentData['files'] = FileDefinitions::getFiles($content);
+        }
+
+        return $contentData;
     }
 
     public static function getContentMetadata(Content $content)
